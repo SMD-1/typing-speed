@@ -12,7 +12,8 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isActive, setIsActive] = useState(false);
   const [currentText, setCurrentText] = useState("");
-  const [targetText, setTargetText] = useState(SAMPLE_TEXT);
+  const targetText = SAMPLE_TEXT;
+  // const [targetText, setTargetText] = useState(SAMPLE_TEXT);
   const [stats, setStats] = useState<TypingStats>({
     wpm: 0,
     accuracy: 0,
