@@ -21,6 +21,7 @@ function App() {
     totalChars: 0,
   });
   const [history, setHistory] = useState<TypingHistory[]>([]);
+  const [isFinished, setIsFinished] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const calculateStats = useCallback(() => {
@@ -30,7 +31,8 @@ function App() {
     const incorrectChars = currentText.length - correctChars;
     const accuracy = Math.round((correctChars / currentText.length) * 100) || 0;
     const timeSpent = duration - timeLeft;
-    const wpm = Math.round(correctChars / 5 / (timeSpent / 60)) || 0;
+    const wpm =
+      timeSpent > 0 ? Math.round(correctChars / 5 / (timeSpent / 60)) : 0;
 
     return {
       wpm,
@@ -53,17 +55,20 @@ function App() {
             setIsActive(false);
             const finalStats = calculateStatsRef.current();
             setStats(finalStats);
-            setHistory((prev) => [
-              ...prev,
-              {
-                timestamp: Date.now(),
-                wpm: finalStats.wpm,
-                accuracy: finalStats.accuracy,
-              },
-            ]);
           }
           return prev - 1;
         });
+
+        // Update history every second
+        const currentStats = calculateStatsRef.current();
+        setHistory((prev) => [
+          ...prev,
+          {
+            timestamp: Date.now(),
+            wpm: currentStats.wpm,
+            accuracy: currentStats.accuracy,
+          },
+        ]);
       }, 1000);
 
       return () => clearInterval(timer);
@@ -71,6 +76,7 @@ function App() {
   }, [isActive, timeLeft]);
 
   const handleStart = () => {
+    setIsFinished(false);
     setTimeLeft(duration);
     setCurrentText("");
     setIsActive(true);
@@ -93,13 +99,27 @@ function App() {
     }
     setCurrentText(newText);
 
-    if (isActive) {
+    if (newText.length === targetText.length) {
+      setIsActive(false);
+      const finalStats = calculateStats();
+      setStats(finalStats);
+      setHistory((prev) => [
+        ...prev,
+        {
+          timestamp: Date.now(),
+          wpm: finalStats.wpm,
+          accuracy: finalStats.accuracy,
+        },
+      ]);
+      setIsFinished(true);
+    } else if (isActive) {
       const currentStats = calculateStats();
       setStats(currentStats);
     }
   };
 
   const handleDurationChange = (newDuration: number) => {
+    setIsFinished(false);
     setDuration(newDuration);
     setTimeLeft(newDuration);
     setIsActive(false);
@@ -158,7 +178,7 @@ function App() {
               onChange={handleInput}
               className="absolute inset-0 opacity-0 w-full h-full cursor-text resize-none p-4"
               style={{ caretColor: "transparent" }}
-              disabled={timeLeft === 0}
+              disabled={timeLeft === 0 || isFinished}
               autoFocus
             />
           </div>
@@ -171,7 +191,9 @@ function App() {
           )}
         </div>
 
-        {timeLeft === 0 && <Stats stats={stats} history={history} />}
+        {(timeLeft === 0 || isFinished) && (
+          <Stats stats={stats} history={history} />
+        )}
       </div>
     </div>
   );

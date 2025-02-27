@@ -39,7 +39,7 @@ const Stats: React.FC<StatsProps> = ({ stats, history }) => {
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-red-500">
+        <div className="bg-white p-4 rounded-lg shadow-sm col-span-3">
           <h3 className="text-sm font-medium text-gray-500 mb-4">
             Performance Over Time
           </h3>
@@ -54,18 +54,18 @@ const Stats: React.FC<StatsProps> = ({ stats, history }) => {
             <Tooltip />
             <Legend />
             <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="wpm"
-              stroke="#4f46e5"
-              name="WPM"
-            />
-            <Line
               yAxisId="right"
               type="monotone"
               dataKey="accuracy"
               stroke="#059669"
               name="Accuracy %"
+            />
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="wpm"
+              stroke="#4f46e5"
+              name="WPM"
             />
           </LineChart>
         </div>
