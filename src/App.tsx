@@ -39,6 +39,10 @@ function App() {
       totalChars: targetText.length,
     };
   }, [currentText, targetText, duration, timeLeft]);
+  const calculateStatsRef = useRef(calculateStats);
+  useEffect(() => {
+    calculateStatsRef.current = calculateStats;
+  }, [calculateStats]);
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -46,7 +50,7 @@ function App() {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setIsActive(false);
-            const finalStats = calculateStats();
+            const finalStats = calculateStatsRef.current();
             setStats(finalStats);
           }
           return prev - 1;
@@ -55,7 +59,7 @@ function App() {
 
       return () => clearInterval(timer);
     }
-  }, [isActive, timeLeft, calculateStats]);
+  }, [isActive, timeLeft]);
 
   const handleStart = () => {
     setTimeLeft(duration);
