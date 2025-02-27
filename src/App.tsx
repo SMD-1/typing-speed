@@ -20,6 +20,7 @@ function App() {
     incorrectChars: 0,
     totalChars: 0,
   });
+  const [history, setHistory] = useState<TypingHistory[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const calculateStats = useCallback(() => {
@@ -52,6 +53,14 @@ function App() {
             setIsActive(false);
             const finalStats = calculateStatsRef.current();
             setStats(finalStats);
+            setHistory((prev) => [
+              ...prev,
+              {
+                timestamp: Date.now(),
+                wpm: finalStats.wpm,
+                accuracy: finalStats.accuracy,
+              },
+            ]);
           }
           return prev - 1;
         });
@@ -78,7 +87,7 @@ function App() {
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newText = e.target.value;
+    const newText = e.target.value.slice(0, targetText.length);
     if (!isActive && newText.length === 1) {
       setIsActive(true);
     }
@@ -162,7 +171,7 @@ function App() {
           )}
         </div>
 
-        {timeLeft === 0 && <Stats stats={stats} />}
+        {timeLeft === 0 && <Stats stats={stats} history={history} />}
       </div>
     </div>
   );
