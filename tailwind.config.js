@@ -5,4 +5,5 @@ export default {
     extend: {},
   },
   plugins: [],
+  darkMode: "class", // or 'media' or 'false'
 };

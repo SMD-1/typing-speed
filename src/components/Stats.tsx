@@ -19,27 +19,33 @@ const Stats: React.FC<StatsProps> = ({ stats, history }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Speed</h3>
-          <p className="mt-1 text-2xl font-semibold text-indigo-600">
+        <div className="bg-white p-4 rounded-lg shadow-sm dark:bg-gray-800">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-200">
+            Speed
+          </h3>
+          <p className="mt-1 text-2xl font-semibold text-indigo-600 dark:text-indigo-400">
             {stats.wpm} WPM
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Accuracy</h3>
-          <p className="mt-1 text-2xl font-semibold text-green-600">
+        <div className="bg-white p-4 rounded-lg shadow-sm dark:bg-gray-800">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-200">
+            Accuracy
+          </h3>
+          <p className="mt-1 text-2xl font-semibold text-green-600 dark:text-green-400">
             {stats.accuracy}%
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <h3 className="text-sm font-medium text-gray-500">Characters</h3>
-          <p className="mt-1 text-2xl font-semibold text-blue-600">
+        <div className="bg-white p-4 rounded-lg shadow-sm dark:bg-gray-800">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-200">
+            Characters
+          </h3>
+          <p className="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">
             {stats.correctChars}/{stats.totalChars}
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm col-span-3">
-          <h3 className="text-sm font-medium text-gray-500 mb-4">
+        <div className="bg-white p-4 rounded-lg shadow-sm col-span-3 dark:bg-gray-800">
+          <h3 className="text-sm font-medium text-gray-500 mb-4 dark:text-gray-200">
             Performance Over Time
           </h3>
           <LineChart width={600} height={300} data={history}>

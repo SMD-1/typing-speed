@@ -18,7 +18,7 @@ const Timer: React.FC<TimerProps> = ({
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
         <TimerIcon className="w-5 h-5 text-indigo-600" />
-        <span className="font-medium">{timeLeft}s</span>
+        <span className="font-medium dark:text-white">{timeLeft}s</span>
       </div>
       <div className="flex gap-2">
         {durations.map((d) => (
