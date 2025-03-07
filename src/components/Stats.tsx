@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 interface StatsProps {
@@ -44,35 +45,40 @@ const Stats: React.FC<StatsProps> = ({ stats, history }) => {
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm col-span-3 dark:bg-gray-800">
+        <div
+          className="bg-white p-4 rounded-lg shadow-sm col-span-3 dark:bg-gray-800"
+          style={{ height: "300px" }}
+        >
           <h3 className="text-sm font-medium text-gray-500 mb-4 dark:text-gray-200">
             Performance Over Time
           </h3>
-          <LineChart width={600} height={300} data={history}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="timestamp"
-              tickFormatter={(value) => new Date(value).toLocaleTimeString()}
-            />
-            <YAxis yAxisId="left" />
-            <YAxis yAxisId="right" orientation="right" />
-            <Tooltip />
-            <Legend />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="accuracy"
-              stroke="#059669"
-              name="Accuracy %"
-            />
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="wpm"
-              stroke="#4f46e5"
-              name="WPM"
-            />
-          </LineChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={history}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="timestamp"
+                tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+              />
+              <YAxis yAxisId="left" />
+              <YAxis yAxisId="right" orientation="right" />
+              <Tooltip />
+              <Legend />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="accuracy"
+                stroke="#059669"
+                name="Accuracy %"
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="wpm"
+                stroke="#4f46e5"
+                name="WPM"
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
