@@ -12,7 +12,11 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isActive, setIsActive] = useState(false);
   const [currentText, setCurrentText] = useState("");
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(
+    localStorage.getItem("theme") === "dark" ||
+      (!localStorage.getItem("theme") &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+  );
   const targetText = SAMPLE_TEXT;
   // const [targetText, setTargetText] = useState(SAMPLE_TEXT);
   const [stats, setStats] = useState<TypingStats>({
@@ -128,11 +132,15 @@ function App() {
     setCurrentText("");
   };
 
-  const toggleDarkMode = () => {
-    setIsDark((prev) => {
-      return !prev;
-    });
-  };
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
 
   return (
     <div className={`${isDark ? "dark" : ""}`}>
@@ -140,7 +148,7 @@ function App() {
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="text-center relative">
             <button
-              onClick={toggleDarkMode}
+              onClick={() => setIsDark(!isDark)}
               className="absolute right-0 top-0 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               aria-label="Toggle dark mode"
             >
