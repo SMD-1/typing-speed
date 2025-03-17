@@ -32,6 +32,20 @@ function App() {
   const [cursorBlink, setCursorBlink] = useState(true);
 
   useEffect(() => {
+    const handleGlobalClick = () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+
+    document.addEventListener("click", handleGlobalClick);
+
+    return () => {
+      document.removeEventListener("click", handleGlobalClick);
+    };
+  }, []);
+
+  useEffect(() => {
     const blinkInterval = setInterval(() => {
       setCursorBlink((prev) => !prev);
     }, 530);
@@ -57,6 +71,7 @@ function App() {
       totalChars: targetText.length,
     };
   }, [currentText, targetText, duration, timeLeft]);
+
   const calculateStatsRef = useRef(calculateStats);
   useEffect(() => {
     calculateStatsRef.current = calculateStats;
@@ -102,9 +117,9 @@ function App() {
       incorrectChars: 0,
       totalChars: targetText.length,
     });
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
