@@ -29,6 +29,15 @@ function App() {
   const [history, setHistory] = useState<TypingHistory[]>([]);
   const [isFinished, setIsFinished] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [cursorBlink, setCursorBlink] = useState(true);
+
+  useEffect(() => {
+    const blinkInterval = setInterval(() => {
+      setCursorBlink((prev) => !prev);
+    }, 530);
+
+    return () => clearInterval(blinkInterval);
+  }, []);
 
   const calculateStats = useCallback(() => {
     const correctChars = currentText
@@ -185,7 +194,12 @@ function App() {
             <div className="relative">
               <div
                 className="font-mono text-lg p-4 bg-gray-100 rounded-lg whitespace-pre-wrap break-all dark:bg-gray-700"
-                style={{ minHeight: "100px" }}
+                style={{
+                  minHeight: "100px",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "normal",
+                  overflowWrap: "normal",
+                }}
               >
                 {targetText.split("").map((char, i) => {
                   let color = "text-gray-500 dark:text-gray-400";
@@ -197,6 +211,13 @@ function App() {
                   }
                   return (
                     <span key={i} className={color}>
+                      {i === currentText.length && (
+                        <span
+                          className={`inline-block w-0.5 h-5 bg-black dark:bg-slate-400 -mr-[1px] -mb-0.5 ${
+                            cursorBlink ? "opacity-100" : "opacity-0"
+                          }`}
+                        />
+                      )}
                       {char}
                     </span>
                   );
