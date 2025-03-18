@@ -5,3 +5,10 @@
 * {
   @apply transition-colors duration-200;
 }
+
+.logo {
+  font-family: "Tektur", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}

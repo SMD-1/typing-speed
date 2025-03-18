@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Moon, RefreshCcw, Sun } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { TypingStats, TypingHistory } from "./types";
 import Stats from "./components/Stats";
 import Timer from "./components/Timer";
+import Header from "./components/Header";
+import { useTheme } from "./context/ThemeContext";
 
 const SAMPLE_TEXT =
   "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! The five boxing wizards jump quickly. Sphinx of black quartz, judge my vow.";
@@ -12,11 +14,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isActive, setIsActive] = useState(false);
   const [currentText, setCurrentText] = useState("");
-  const [isDark, setIsDark] = useState(
-    localStorage.getItem("theme") === "dark" ||
-      (!localStorage.getItem("theme") &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-  );
+  const { isDark } = useTheme();
   const targetText = SAMPLE_TEXT;
   // const [targetText, setTargetText] = useState(SAMPLE_TEXT);
   const [stats, setStats] = useState<TypingStats>({
@@ -156,39 +154,12 @@ function App() {
     setCurrentText("");
   };
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDark]);
-
   return (
     <div className={`${isDark ? "dark" : ""}`}>
       <div className="min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
         <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center relative">
-            <button
-              onClick={() => setIsDark(!isDark)}
-              className="absolute right-0 top-0 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {isDark ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Speed Typing Test
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              Test your typing speed and accuracy
-            </p>
-          </div>
+          {/* Header */}
+          <Header />
 
           <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 dark:bg-gray-800">
             <div className="flex justify-between items-center">
