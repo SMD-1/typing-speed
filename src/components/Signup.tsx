@@ -1,21 +1,23 @@
 import { useTheme } from "@/context/ThemeContext";
-import { useState } from "react";
+import { ChevronLeft } from "lucide-react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { ChevronLeft, House } from "lucide-react";
 
-const Login = () => {
+export function Signup() {
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
+    // Handle signup logic here
   };
 
   return (
     <div className={`${isDark ? "dark" : ""}`}>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900 relative">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
         <div className="bg:gray-100 dark:bg-gray-800 w-full max-w-md p-6 rounded-lg shadow-md">
           <button
             className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-6 border border-gray-300 dark:border-gray-600 p-2 rounded-md"
@@ -26,10 +28,32 @@ const Login = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              >
+                Full name
+              </label>
+              <div className="mt-1">
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="John Doe"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-200"
               >
-                Email
+                Email address
               </label>
               <div className="mt-1">
                 <input
@@ -58,7 +82,7 @@ const Login = () => {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -68,18 +92,12 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex justify-end text-sm">
-              <button className="font-medium text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-500 hover:text-indigo-600 hover:underline">
-                Forgot your password?
-              </button>
-            </div>
-
             <div>
               <button
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
               >
-                Sign in
+                Create account
               </button>
             </div>
 
@@ -105,24 +123,22 @@ const Login = () => {
                     src="https://www.svgrepo.com/show/475656/google-color.svg"
                     alt="Google logo"
                   />
-                  Sign in with Google
+                  Sign up with Google
                 </button>
+                <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                  Don't have an account?{" "}
+                  <button
+                    className="hover:underline text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login
+                  </button>
+                </p>
               </div>
-              <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{" "}
-                <button
-                  className="hover:underline text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
-                  onClick={() => navigate("/create-account")}
-                >
-                  Sign up
-                </button>
-              </p>
             </div>
           </form>
         </div>
       </div>
     </div>
   );
-};
-
-export default Login;
+}

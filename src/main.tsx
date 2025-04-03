@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import { BrowserRouter, Route, Routes } from "react-router";
 import Login from "./components/Login.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { Signup } from "./components/Signup.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -13,6 +14,7 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/create-account" element={<Signup />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
