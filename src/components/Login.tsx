@@ -1,7 +1,7 @@
 import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { ChevronLeft, House } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 const Login = () => {
   const { isDark } = useTheme();
