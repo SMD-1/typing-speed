@@ -1,17 +1,53 @@
 import { useTheme } from "@/context/ThemeContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const Login = () => {
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     // Handle login logic here
+    setLoading(true);
+    await authClient.signIn.email(
+      {
+        email: email,
+        password: password,
+      },
+      {
+        onRequest: () => {
+          //show loading
+          setLoading(true);
+        },
+        onSuccess: () => {
+          navigate("/");
+          setLoading(false);
+        },
+        onError: (ctx) => {
+          console.error("Error signing in:", ctx.error.message);
+          setError(ctx.error.message);
+          setLoading(false);
+        },
+      }
+    );
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError("");
+      }, 3000); // 3 seconds
+
+      return () => clearTimeout(timer); // Cleanup on unmount or re-run
+    }
+  }, [error]);
 
   return (
     <div className={`${isDark ? "dark" : ""}`}>
@@ -21,8 +57,13 @@ const Login = () => {
             className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-6 border border-gray-300 dark:border-gray-600 p-2 rounded-md"
             onClick={() => navigate("/")}
           >
-            <ChevronLeft className="w-4 h-4 " /> Home
+            <ChevronLeft className="w-4 h-4" /> Home
           </button>
+          {error && (
+            <div className="my-4 bg-red-500 dark:bg-red-600 rounded-md">
+              <p className="text-white p-2 text-sm">{error}</p>
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
@@ -79,7 +120,7 @@ const Login = () => {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
               >
-                Sign in
+                {loading ? "Loading..." : "Sign in"}
               </button>
             </div>
 
@@ -97,6 +138,30 @@ const Login = () => {
 
               <div className="mt-6">
                 <button
+                  onClick={async () => {
+                    // Handle Google sign up logic here
+                    setLoading(true);
+                    await authClient.signIn.social(
+                      {
+                        provider: "google",
+                        callbackURL: "http://localhost:5173/",
+                      },
+                      {
+                        onRequest: () => {
+                          //show loading
+                          setLoading(true);
+                        },
+                        onSuccess: () => {
+                          navigate("/");
+                          setLoading(false);
+                        },
+                        onError: () => {
+                          setError("Error signing in with Google");
+                          setLoading(false);
+                        },
+                      }
+                    );
+                  }}
                   type="button"
                   className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                 >
@@ -105,7 +170,7 @@ const Login = () => {
                     src="https://www.svgrepo.com/show/475656/google-color.svg"
                     alt="Google logo"
                   />
-                  Sign in with Google
+                  {loading ? "Loading..." : "Sign in with Google"}
                 </button>
               </div>
               <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
