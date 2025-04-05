@@ -1,7 +1,8 @@
 import { useTheme } from "@/context/ThemeContext";
 import { ChevronLeft } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { authClient } from "../lib/auth-client";
 
 export function Signup() {
   const { isDark } = useTheme();
@@ -9,11 +10,50 @@ export function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     // Handle signup logic here
+    await authClient.signUp.email(
+      {
+        name: name,
+        email: email,
+        password: password,
+      },
+      {
+        onRequest: () => {
+          //show loading
+          setLoading(true);
+        },
+        onSuccess: () => {
+          setLoading(false);
+          navigate("/");
+        },
+        onError: (ctx) => {
+          if (ctx.error.code === "PASSWORD_TOO_SHORT") {
+            setError(
+              `${ctx.error.message}, Password must be at least 8 characters`
+            );
+          } else {
+            setError(ctx.error.message);
+          }
+          setLoading(false);
+        },
+      }
+    );
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError("");
+      }, 3000); // 3 seconds
+
+      return () => clearTimeout(timer); // Cleanup on unmount or re-run
+    }
+  }, [error]);
 
   return (
     <div className={`${isDark ? "dark" : ""}`}>
@@ -25,6 +65,11 @@ export function Signup() {
           >
             <ChevronLeft className="w-4 h-4 " /> Home
           </button>
+          {error && (
+            <div className="my-4 bg-red-500 dark:bg-red-600 rounded-md">
+              <p className="text-white p-2 text-sm">{error}</p>
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
@@ -97,7 +142,7 @@ export function Signup() {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
               >
-                Create account
+                {loading ? "Loading..." : "Create account"}
               </button>
             </div>
 
@@ -115,6 +160,28 @@ export function Signup() {
 
               <div className="mt-6">
                 <button
+                  onClick={async () => {
+                    // Handle Google sign up logic here
+                    await authClient.signIn.social(
+                      {
+                        provider: "google",
+                      },
+                      {
+                        onRequest: () => {
+                          //show loading
+                          setLoading(true);
+                        },
+                        onSuccess: () => {
+                          setLoading(false);
+                          navigate("/");
+                        },
+                        onError: (ctx) => {
+                          setLoading(false);
+                          setError(ctx.error.message);
+                        },
+                      }
+                    );
+                  }}
                   type="button"
                   className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                 >
