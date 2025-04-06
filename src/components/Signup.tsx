@@ -165,6 +165,7 @@ export function Signup() {
                     await authClient.signIn.social(
                       {
                         provider: "google",
+                        callbackURL: import.meta.env.VITE_UI_BASE_URL,
                       },
                       {
                         onRequest: () => {

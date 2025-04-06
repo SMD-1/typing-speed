@@ -144,7 +144,7 @@ const Login = () => {
                     await authClient.signIn.social(
                       {
                         provider: "google",
-                        callbackURL: "http://localhost:5173/",
+                        callbackURL: import.meta.env.VITE_UI_BASE_URL,
                       },
                       {
                         onRequest: () => {
