@@ -14,7 +14,7 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     // Handle signup logic here
-    const { data, error } = await authClient.signUp.email(
+    await authClient.signUp.email(
       {
         email, // user email address
         password, // user password -> min 8 characters by default
@@ -44,8 +44,6 @@ const Signup = () => {
         },
       }
     );
-    console.log("Signup response:", data);
-    console.log("Signup error:", error);
   };
 
   useEffect(() => {

@@ -29,7 +29,6 @@ const Header = () => {
         {/* 2) if isPending is true then show loading in Profile */}
         {isPending && (
           <div className="flex items-center justify-center">
-            console.log("Loading...");
             <p className="text-gray-500">Loading...</p>
           </div>
         )}

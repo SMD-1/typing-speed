@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, serial } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -51,7 +51,7 @@ export const verification = pgTable("verification", {
 });
 
 export const results = pgTable("results", {
-  id: text("id").primaryKey(),
+  id: serial("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -60,37 +60,8 @@ export const results = pgTable("results", {
   correctChars: text("correct_chars").notNull(),
   incorrectChars: text("incorrect_chars").notNull(),
   totalChars: text("total_chars").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at"),
   duration: text("duration").notNull(),
   text: text("text").notNull(),
-});
-
-export const history = pgTable("history", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  wpm: text("wpm").notNull(),
-  accuracy: text("accuracy").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-});
-
-export const historyResults = pgTable("history_results", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  wpm: text("wpm").notNull(),
-  accuracy: text("accuracy").notNull(),
-  correctChars: text("correct_chars").notNull(),
-  incorrectChars: text("incorrect_chars").notNull(),
-  totalChars: text("total_chars").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-  duration: text("duration").notNull(),
-  text: text("text").notNull(),
-  historyId: text("history_id")
-    .notNull()
-    .references(() => history.id, { onDelete: "cascade" }),
 });

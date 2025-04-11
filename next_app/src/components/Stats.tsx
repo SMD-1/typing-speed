@@ -17,8 +17,6 @@ interface StatsProps {
 }
 
 const Stats: React.FC<StatsProps> = ({ stats, history }) => {
-  console.log("stats", stats);
-  console.log("history", history);
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">

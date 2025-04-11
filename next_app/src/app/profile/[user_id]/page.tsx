@@ -4,8 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
-import { dummyTypingTests, Profile, TypingTest } from "@/types";
-import { Clock, Keyboard, Target, Trophy } from "lucide-react";
+import { Profile, TypingTest } from "@/types";
+import { ChevronLeft, Clock, Keyboard, Target, Trophy } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CartesianGrid,
@@ -16,49 +17,37 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 const Profiles = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [errors, setError] = useState<string | null>(null);
   const [typingTests, setTypingTests] = useState<TypingTest[]>([]);
+  const router = useRouter();
   const { data: session, isPending, error } = authClient.useSession();
-  // if (error) {
-  //   setError(error.message);
-  // }
-  // if (isPending) {
-  //   return <div>Loading...</div>;
-  // }
-  // if (!session) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
-  //       <div className="max-w-5xl mx-auto space-y-8 rounded-lg shadow-md">
-  //         <div className="text-2xl font-bold">
-  //           Profile
-  //           <Separator className="my-4 border-gray-300 dark:border-gray-600  shadow-sm" />
-  //         </div>
-  //         <div className="mb-8 flex items-center gap-6 bg-card p-6 rounded-lg shadow-lg">
-  //           <Avatar className="h-24 w-24">
-  //             <AvatarFallback>?</AvatarFallback>
-  //           </Avatar>
-  //           <div>
-  //             <h1 className="text-3xl font-bold mb-2">Anonymous</h1>
-  //             <p className="text-muted-foreground">Typing enthusiast</p>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-  // if (session) {
-  //   setProfile({
-  //     username: session.user.name,
-  //     avatar_url: session.user.image ?? "",
-  //     email: session.user.email,
-  //   });
-  // }
 
+  // get the params
+  const params = useParams();
+  const userId = params?.user_id;
+
+  // call the API to get results data
+  const {
+    data: typingTestsResponse,
+    isPending: typingTestsLoading,
+    error: typingTestsError,
+  } = useQuery({
+    queryKey: ["fetchResults", userId],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${userId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch results");
+      }
+      return response.json();
+    },
+  });
+
+  // set the profile data
   useEffect(() => {
-    console.log("Session data");
     if (session) {
       setProfile({
         username: session.user.name,
@@ -68,41 +57,54 @@ const Profiles = () => {
     }
   }, [session]);
 
+  // set the typing tests data
   useEffect(() => {
-    // Simulate API loading delay
-    const timer = setTimeout(() => {
-      setTypingTests(dummyTypingTests);
-      // setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const averageWPM = typingTests.length
-    ? Math.round(
-        typingTests.reduce((acc, test) => acc + test.wpm, 0) /
-          typingTests.length
-      )
-    : 0;
-
-  const averageAccuracy = typingTests.length
-    ? Math.round(
-        typingTests.reduce((acc, test) => acc + Number(test.accuracy), 0) /
-          typingTests.length
-      )
-    : 0;
+    if (typingTestsResponse) {
+      setTypingTests(typingTestsResponse);
+    }
+  }, [typingTestsResponse]);
 
   const totalTests = typingTests.length;
-  const bestWPM = typingTests.length
+
+  const averageWPM = totalTests
+    ? Math.round(
+        typingTests.reduce((acc, test) => acc + test.wpm, 0) / totalTests
+      )
+    : 0;
+
+  const averageAccuracy = totalTests
+    ? Math.round(
+        typingTests.reduce((acc, test) => acc + Number(test.accuracy), 0) /
+          totalTests
+      )
+    : 0;
+
+  const bestWPM = totalTests
     ? Math.max(...typingTests.map((test) => test.wpm))
     : 0;
+
+  if (typingTestsError) {
+    return <div>Error: {typingTestsError.message}</div>;
+  }
+  if (typingTestsLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!typingTestsResponse) {
+    return <div>No data found</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
       <div className="max-w-5xl mx-auto space-y-8 border-none rounded-lg">
         <div className="text-2xl font-bold">
           <div className="flex justify-between px-6">
-            <p>Profile</p>
+            <p className="flex items-center gap-2">
+              <ChevronLeft
+                className="cursor-pointer"
+                onClick={() => router.back()}
+              />{" "}
+              Profile
+            </p>
             <ModeToggle />
           </div>
           <Separator className="my-4 border-gray-300 dark:border-gray-800  shadow-sm" />
@@ -175,7 +177,7 @@ const Profiles = () => {
                 <LineChart data={typingTests}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
-                    dataKey="created_at"
+                    dataKey="createdAt"
                     tickFormatter={(value) =>
                       new Date(value).toLocaleDateString()
                     }
@@ -187,20 +189,21 @@ const Profiles = () => {
                     }
                     formatter={(value, name) => [
                       value,
-                      name === "wpm" ? "WPM" : "Accuracy (%)",
+                      name === "Accuracy" ? "Accuracy (%)" : "WPM",
                     ]}
                   />
+
                   <Line
                     type="monotone"
                     dataKey="wpm"
-                    stroke="hsl(var(--chart-1))"
+                    stroke="#4f46e5"
                     name="WPM"
                     strokeWidth={2}
                   />
                   <Line
                     type="monotone"
                     dataKey="accuracy"
-                    stroke="hsl(var(--chart-2))"
+                    stroke="#059669"
                     name="Accuracy"
                     strokeWidth={2}
                   />
@@ -236,7 +239,7 @@ const Profiles = () => {
                         {Math.round(test.accuracy)}% Accuracy
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {test.test_duration}s duration
+                        {test.duration}s duration
                       </p>
                     </div>
                   </div>
