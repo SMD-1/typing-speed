@@ -67,7 +67,8 @@ const Profiles = () => {
 
   const averageWPM = totalTests
     ? Math.round(
-        typingTests.reduce((acc, test) => acc + test.wpm, 0) / totalTests
+        typingTests.reduce((acc, test) => acc + Number(test.wpm), 0) /
+          totalTests
       )
     : 0;
 
