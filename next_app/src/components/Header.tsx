@@ -75,7 +75,7 @@ const Header = () => {
               {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
               <DropdownMenuItem
                 className="dark:focus:bg-gray-600 focus:bg-gray-100"
-                onClick={() => router.push("/profile")}
+                onClick={() => router.push("/profile/" + session.user.id)}
               >
                 Profile
               </DropdownMenuItem>

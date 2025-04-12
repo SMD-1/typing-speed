@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Stats from "@/components/Stats";
 import Timer from "@/components/Timer";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { TypingHistory, TypingStats } from "@/types";
 import { RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -100,8 +101,64 @@ export default function Home() {
       }, 1000);
 
       return () => clearInterval(timer);
+    } else {
+      const stats = calculateStatsRef.current();
+      setStats(stats);
+      // Save the stats to the database
+      if (stats.wpm > 0) {
+        if (session?.user?.id) {
+          fetch("/api/results", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: session?.user?.id,
+              wpm: stats.wpm,
+              accuracy: stats.accuracy,
+              correctChars: stats.correctChars,
+              incorrectChars: stats.incorrectChars,
+              totalChars: stats.totalChars,
+              duration: duration,
+              text: targetText,
+            }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .catch((error) => {
+              console.error("Error saving data:", error);
+              throw error;
+            });
+        } else {
+          localStorage.setItem(
+            "typingTestStats",
+            JSON.stringify({
+              userId: "",
+              wpm: stats.wpm,
+              accuracy: stats.accuracy,
+              correctChars: stats.correctChars,
+              incorrectChars: stats.incorrectChars,
+              totalChars: stats.totalChars,
+              duration: duration,
+              text: targetText,
+            })
+          );
+        }
+      }
     }
   }, [isActive, timeLeft]);
+
+  const { data: session, isPending, error } = authClient.useSession();
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div className="text-red-500">Error: {error.message}</div>;
+  }
 
   const handleStart = () => {
     setIsFinished(false);
