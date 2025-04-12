@@ -1,5 +1,6 @@
 import React from "react";
 import { Timer as TimerIcon } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface TimerProps {
   timeLeft: number;
@@ -22,17 +23,17 @@ const Timer: React.FC<TimerProps> = ({
       </div>
       <div className="flex gap-2">
         {durations.map((d) => (
-          <button
+          <Button
             key={d}
             onClick={() => onDurationChange(d)}
-            className={`px-3 py-1 rounded-full text-sm ${
+            className={`p-3 h-3 rounded-full text-sm ${
               duration === d
-                ? "bg-indigo-600 text-white"
+                ? "bg-primary"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
             {d}s
-          </button>
+          </Button>
         ))}
       </div>
     </div>

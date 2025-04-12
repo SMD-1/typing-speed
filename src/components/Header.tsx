@@ -1,15 +1,22 @@
-import { useState } from "react";
-import { CircleUserRound, LogOut, Moon, Sun } from "lucide-react";
-import { useNavigate } from "react-router";
-import { useTheme } from "@/context/ThemeContext";
+import "dotenv/config";
+import { useRouter } from "next/navigation";
+import { ModeToggle } from "./theme/mode-toggle";
+import { LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 const Header = () => {
-  const navigate = useNavigate();
-  const { isDark, toggleTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const { data: session, isPending, error, refetch } = authClient.useSession();
+  const { data: session, isPending, error } = authClient.useSession();
   const logoTitle = "<Type racer />";
+  const router = useRouter();
 
   return (
     <div className="logo flex justify-between">
@@ -34,65 +41,67 @@ const Header = () => {
         )}
         {/* 3) if session is null then show login button in Profile */}
         {!session && !isPending && !error && (
-          <button
-            className="rounded-md dark:bg-gray-700 bg-gray-200 px-4 py-[6px] dark:text-gray-200"
-            onClick={() => navigate("/login")}
+          <Button
+            className="rounded-md bg-primary"
+            onClick={() => router.push("/login")}
           >
             Sign in
-          </button>
+          </Button>
         )}
-        {/* light/dark theme button */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          aria-label="Toggle dark mode"
-        >
-          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
         {/* 4) if session is not null then show profile image in Profile */}
         {session && (
-          <div className="relative">
-            <div
-              className="rounded-full w-10 h-10 cursor-pointer"
-              onClick={() => setIsOpen(!isOpen)}
-            >
+          <DropdownMenu>
+            <DropdownMenuTrigger className="w-10 h-10 cursor-pointer rounded-full">
               {session?.user?.image ? (
-                <img
-                  src={session.user.image}
-                  referrerPolicy="no-referrer"
-                  alt="Profile"
-                  className="rounded-full w-full h-full object-cover"
-                />
+                <Avatar>
+                  <AvatarImage
+                    src={session.user.image}
+                    referrerPolicy="no-referrer"
+                    alt={session.user.name}
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
               ) : (
-                <CircleUserRound className="w-full h-full dark:text-gray-200 text-gray-900" />
+                <Avatar>
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="@shadcn"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
               )}
-            </div>
-
-            {isOpen && (
-              <div className="absolute top-12 right-0 bg-white dark:bg-gray-800 shadow-xl rounded-lg p-4 w-40 z-10 divide-y divide-gray-600">
-                <p
-                  className="text-gray-700 dark:text-gray-200 truncate pb-2"
-                  title={session.user.name}
-                >
-                  {session.user.name}
-                </p>
-                <button
-                  className=" text-red-500 flex justify-between w-full items-center pt-2"
-                  onClick={() => {
-                    authClient.signOut();
-                    refetch();
-                  }}
-                >
-                  Log out{" "}
-                  <span>
-                    {" "}
-                    <LogOut height={20} />
-                  </span>
-                </button>
-              </div>
-            )}
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="dark:bg-gray-700">
+              {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+              <DropdownMenuItem
+                className="dark:focus:bg-gray-600 focus:bg-gray-100"
+                onClick={() => router.push("/profile/" + session.user.id)}
+              >
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {/* <DropdownMenuItem className="dark:focus:bg-gray-600 focus:bg-gray-100">
+                {session.user.name}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator /> */}
+              <DropdownMenuItem
+                className="dark:focus:bg-gray-600 focus:bg-gray-100 text-red-500 flex justify-between"
+                onClick={() => {
+                  authClient.signOut();
+                }}
+              >
+                Log out{" "}
+                <span>
+                  {" "}
+                  <LogOut className="text-red-500" height={20} />
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
+
+        {/* light/dark theme button */}
+        <ModeToggle />
       </div>
     </div>
   );
