@@ -76,6 +76,8 @@ export default function Home() {
     calculateStatsRef.current = calculateStats;
   }, [calculateStats]);
 
+  const { data: session, isPending, error } = authClient.useSession();
+
   useEffect(() => {
     if (isActive && timeLeft > 0) {
       const timer = setInterval(() => {
@@ -150,9 +152,8 @@ export default function Home() {
         }
       }
     }
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, duration, targetText, session?.user?.id]);
 
-  const { data: session, isPending, error } = authClient.useSession();
   if (isPending) {
     return <div>Loading...</div>;
   }

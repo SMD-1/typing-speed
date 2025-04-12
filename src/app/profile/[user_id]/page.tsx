@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { Profile, TypingTest } from "@/types";
 import { ChevronLeft, Clock, Keyboard, Target, Trophy } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CartesianGrid,
@@ -17,14 +16,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 const Profiles = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [typingTests, setTypingTests] = useState<TypingTest[]>([]);
   const router = useRouter();
-  const { data: session, isPending, error } = authClient.useSession();
+  const { data: session } = authClient.useSession();
 
   // get the params
   const params = useParams();

@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 const Signup = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -26,7 +27,7 @@ const Signup = () => {
           //show loading
           setLoading(true);
         },
-        onSuccess: (ctx) => {
+        onSuccess: () => {
           //redirect to the dashboard or sign in page
           setLoading(false);
           router.push("/");
@@ -187,15 +188,18 @@ const Signup = () => {
                 type="button"
                 className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
               >
-                <img
-                  className="h-5 w-5 mr-2"
+                <Image
+                  className="mr-2"
                   src="https://www.svgrepo.com/show/475656/google-color.svg"
                   alt="Google logo"
+                  width={20}
+                  height={20}
+                  priority
                 />
                 Sign up with Google
               </button>
               <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <button
                   className="hover:underline text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
                   onClick={() => router.push("/login")}
