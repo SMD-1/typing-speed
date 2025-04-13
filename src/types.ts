@@ -34,5 +34,5 @@ export interface TypingTest {
   wpm: number;
   accuracy: number;
   duration: number;
-  created_at: string;
+  createdAt: string;
 }

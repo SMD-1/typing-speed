@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 const Profiles = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -97,7 +98,7 @@ const Profiles = () => {
     <div className="min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
       <div className="max-w-5xl mx-auto space-y-8 border-none rounded-lg">
         <div className="text-2xl font-bold">
-          <div className="flex justify-between px-6">
+          <div className="flex justify-between pr-6 pl-2">
             <p className="flex items-center gap-2">
               <ChevronLeft
                 className="cursor-pointer"
@@ -124,129 +125,149 @@ const Profiles = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="dark:bg-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average WPM</CardTitle>
-              <Keyboard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{averageWPM}</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Best WPM</CardTitle>
-              <Trophy className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{bestWPM}</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Average Accuracy
-              </CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{averageAccuracy}%</div>
-            </CardContent>
-          </Card>
-          <Card className="dark:bg-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Tests</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalTests}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Progress Chart */}
-        <Card className="mb-8 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle>Typing Speed Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={typingTests}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="createdAt"
-                    tickFormatter={(value) =>
-                      new Date(value).toLocaleDateString()
-                    }
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(value) =>
-                      new Date(value).toLocaleDateString()
-                    }
-                    formatter={(value, name) => [
-                      value,
-                      name === "Accuracy" ? "Accuracy (%)" : "WPM",
-                    ]}
-                  />
-
-                  <Line
-                    type="monotone"
-                    dataKey="wpm"
-                    stroke="#4f46e5"
-                    name="WPM"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="accuracy"
-                    stroke="#059669"
-                    name="Accuracy"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+        {/* if no data found */}
+        {typingTests.length === 0 ? (
+          <div className="flex items-center justify-center">
+            <p className="text-gray-500 text-4xl text-bold">
+              No records found!
+              <Link href="/" className="text-blue-500 hover:underline ml-2">
+                Start typing
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <Card className="dark:bg-gray-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Average WPM
+                  </CardTitle>
+                  <Keyboard className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{averageWPM}</div>
+                </CardContent>
+              </Card>
+              <Card className="dark:bg-gray-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Best WPM
+                  </CardTitle>
+                  <Trophy className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{bestWPM}</div>
+                </CardContent>
+              </Card>
+              <Card className="dark:bg-gray-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Average Accuracy
+                  </CardTitle>
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{averageAccuracy}%</div>
+                </CardContent>
+              </Card>
+              <Card className="dark:bg-gray-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Tests
+                  </CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalTests}</div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Recent Tests */}
-        <Card className="dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle>Recent Tests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {typingTests
-                .slice(-5)
-                .reverse()
-                .map((test, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-muted rounded-lg dark:bg-gray-700"
-                  >
-                    <div>
-                      <p className="font-medium">{test.wpm} WPM</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(test.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">
-                        {Math.round(test.accuracy)}% Accuracy
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {test.duration}s duration
-                      </p>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+            {/* Progress Chart */}
+            <Card className="mb-8 dark:bg-gray-800">
+              <CardHeader>
+                <CardTitle>Typing Speed Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={typingTests}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="createdAt"
+                        tickFormatter={(value) =>
+                          new Date(value).toLocaleDateString()
+                        }
+                      />
+                      <YAxis />
+                      <Tooltip
+                        labelFormatter={(value) =>
+                          new Date(value).toLocaleDateString()
+                        }
+                        formatter={(value, name) => [
+                          value,
+                          name === "Accuracy" ? "Accuracy (%)" : "WPM",
+                        ]}
+                      />
+
+                      <Line
+                        type="monotone"
+                        dataKey="wpm"
+                        stroke="#4f46e5"
+                        name="WPM"
+                        strokeWidth={2}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="accuracy"
+                        stroke="#059669"
+                        name="Accuracy"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Tests */}
+            <Card className="dark:bg-gray-800">
+              <CardHeader>
+                <CardTitle>Recent Tests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {typingTests
+                    .slice(-5)
+                    .reverse()
+                    .map((test, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-4 bg-muted rounded-lg dark:bg-gray-700"
+                      >
+                        <div>
+                          <p className="font-medium">{test.wpm} WPM</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(test.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">
+                            {Math.round(test.accuracy)}% Accuracy
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {test.duration}s duration
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );
