@@ -87,12 +87,20 @@ const Header = () => {
               <DropdownMenuSeparator /> */}
               <DropdownMenuItem
                 className="dark:focus:bg-gray-600 focus:bg-gray-100 text-red-500 flex justify-between"
-                onClick={() => {
-                  authClient.signOut();
+                onClick={async () => {
+                  try {
+                    await authClient.signOut();
                   toast.success("Logged out successfully", {
                     description: "See you again soon!",
                     duration: 2000,
                   });
+                  } catch (error) {
+                    console.error("Error signing out:", error);
+                    toast.error("Error signing out", {
+                      description: "Please try again later.",
+                      duration: 2000,
+                    });
+                  }
                 }}
               >
                 Log out{" "}
