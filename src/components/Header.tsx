@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 const Header = () => {
   const { data: session, isPending, error } = authClient.useSession();
@@ -88,6 +89,10 @@ const Header = () => {
                 className="dark:focus:bg-gray-600 focus:bg-gray-100 text-red-500 flex justify-between"
                 onClick={() => {
                   authClient.signOut();
+                  toast.success("Logged out successfully", {
+                    description: "See you again soon!",
+                    duration: 2000,
+                  });
                 }}
               >
                 Log out{" "}

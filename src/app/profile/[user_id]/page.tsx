@@ -101,7 +101,7 @@ const Profiles = () => {
             <p className="flex items-center gap-2">
               <ChevronLeft
                 className="cursor-pointer"
-                onClick={() => router.back()}
+                onClick={() => router.push("/")}
               />{" "}
               Profile
             </p>

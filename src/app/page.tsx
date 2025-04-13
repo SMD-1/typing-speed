@@ -7,6 +7,7 @@ import { authClient } from "@/lib/auth-client";
 import { TypingHistory, TypingStats } from "@/types";
 import { RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 const SAMPLE_TEXT =
   "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! The five boxing wizards jump quickly. Sphinx of black quartz, judge my vow.";
@@ -131,11 +132,24 @@ export default function Home() {
               }
               return response.json();
             })
+            .then(() => {
+              toast.info(
+                "Test completed, click on profile to track your progress"
+              );
+            })
             .catch((error) => {
-              console.error("Error saving data:", error);
+              toast.error("Error saving data", error);
               throw error;
             });
         } else {
+          toast.info("Login to save your results!", {
+            action: {
+              label: "Login",
+              onClick: () => {
+                window.location.href = "/login";
+              },
+            },
+          });
           localStorage.setItem(
             "typingTestStats",
             JSON.stringify({

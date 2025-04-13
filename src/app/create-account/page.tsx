@@ -1,16 +1,17 @@
 "use client";
 import { ChevronLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
+import { toast } from "sonner";
+import Link from "next/link";
 const Signup = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -30,32 +31,23 @@ const Signup = () => {
         onSuccess: () => {
           //redirect to the dashboard or sign in page
           setLoading(false);
+          toast.success("Successfully signed up");
           router.push("/");
         },
         onError: (ctx) => {
           // display the error message
           if (ctx.error.code === "PASSWORD_TOO_SHORT") {
-            setError(
+            toast.error(
               `${ctx.error.message}, Password must be at least 8 characters`
             );
           } else {
-            setError(ctx.error.message);
+            toast.error(ctx.error.message);
           }
           setLoading(false);
         },
       }
     );
   };
-
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError("");
-      }, 3000); // 3 seconds
-
-      return () => clearTimeout(timer); // Cleanup on unmount or re-run
-    }
-  }, [error]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
@@ -66,11 +58,6 @@ const Signup = () => {
         >
           <ChevronLeft className="w-4 h-4 " /> Home
         </button>
-        {error && (
-          <div className="my-4 bg-red-500 dark:bg-red-600 rounded-md">
-            <p className="text-white p-2 text-sm">{error}</p>
-          </div>
-        )}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
@@ -175,11 +162,12 @@ const Signup = () => {
                         setLoading(true);
                       },
                       onSuccess: () => {
-                        router.push("/");
                         setLoading(false);
+                        toast.success("Successfully signed up with Google");
+                        router.push("/");
                       },
                       onError: () => {
-                        setError("Error signing in with Google");
+                        toast.error("Error signing in with Google");
                         setLoading(false);
                       },
                     }
@@ -200,12 +188,12 @@ const Signup = () => {
               </button>
               <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
                 Don&apos;t have an account?{" "}
-                <button
+                <Link
                   className="hover:underline text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
-                  onClick={() => router.push("/login")}
+                  href={"/login"}
                 >
                   Login
-                </button>
+                </Link>
               </p>
             </div>
           </div>
