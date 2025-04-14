@@ -77,7 +77,7 @@ export default function Home() {
     calculateStatsRef.current = calculateStats;
   }, [calculateStats]);
 
-  const { data: session, isPending, error } = authClient.useSession();
+  const { data: session, error } = authClient.useSession();
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -168,9 +168,6 @@ export default function Home() {
     }
   }, [isActive, timeLeft, duration, targetText, session?.user?.id]);
 
-  if (isPending) {
-    return <div>Loading...</div>;
-  }
   if (error) {
     return <div className="text-red-500">Error: {error.message}</div>;
   }

@@ -28,8 +28,8 @@ const Login = () => {
         },
         onSuccess: () => {
           setLoading(false);
-          toast.success("Successfully signed in");
           router.push("/");
+          toast.success("Successfully signed in");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message);
@@ -137,8 +137,8 @@ const Login = () => {
                       },
                       onSuccess: () => {
                         setLoading(false);
-                        toast.success("Successfully signed in with Google");
                         router.push("/");
+                        toast.success("Successfully signed in with Google");
                       },
                       onError: () => {
                         setLoading(false);

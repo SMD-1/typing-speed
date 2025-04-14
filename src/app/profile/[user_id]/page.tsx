@@ -31,11 +31,7 @@ const Profiles = () => {
   const userId = params?.user_id;
 
   // call the API to get results data
-  const {
-    data: typingTestsResponse,
-    isPending: typingTestsLoading,
-    error: typingTestsError,
-  } = useQuery({
+  const { data: typingTestsResponse, error: typingTestsError } = useQuery({
     queryKey: ["fetchResults", userId],
     queryFn: async () => {
       const response = await fetch(`/api/users/${userId}`);
@@ -86,9 +82,6 @@ const Profiles = () => {
 
   if (typingTestsError) {
     return <div>Error: {typingTestsError.message}</div>;
-  }
-  if (typingTestsLoading) {
-    return <div>Loading...</div>;
   }
   if (!typingTestsResponse) {
     return <div>No data found</div>;

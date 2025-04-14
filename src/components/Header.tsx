@@ -86,7 +86,7 @@ const Header = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator /> */}
               <DropdownMenuItem
-                className="dark:focus:bg-gray-600 focus:bg-gray-100 text-red-500 flex justify-between"
+                className="dark:focus:bg-gray-600 focus:bg-gray-100 justify-between"
                 onClick={async () => {
                   try {
                     await authClient.signOut();
@@ -106,7 +106,7 @@ const Header = () => {
                 Log out{" "}
                 <span>
                   {" "}
-                  <LogOut className="text-red-500" height={20} />
+                  <LogOut height={20} />
                 </span>
               </DropdownMenuItem>
             </DropdownMenuContent>

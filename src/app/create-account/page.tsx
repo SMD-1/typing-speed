@@ -31,8 +31,8 @@ const Signup = () => {
         onSuccess: () => {
           //redirect to the dashboard or sign in page
           setLoading(false);
-          toast.success("Successfully signed up");
           router.push("/");
+          toast.success("Successfully signed up");
         },
         onError: (ctx) => {
           // display the error message
@@ -163,8 +163,8 @@ const Signup = () => {
                       },
                       onSuccess: () => {
                         setLoading(false);
-                        toast.success("Successfully signed up with Google");
                         router.push("/");
+                        toast.success("Successfully signed up with Google");
                       },
                       onError: () => {
                         toast.error("Error signing in with Google");
