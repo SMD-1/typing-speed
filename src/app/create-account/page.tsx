@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -12,6 +12,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -110,11 +111,11 @@ const Signup = () => {
             >
               Password
             </label>
-            <div className="mt-1">
+            <div className="mt-1 relative ">
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 value={password}
@@ -122,6 +123,17 @@ const Signup = () => {
                 className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="••••••••"
               />
+              {showPassword ? (
+                <EyeOff
+                  className="absolute right-3 top-2 w-5 h-5 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              ) : (
+                <Eye
+                  className="absolute right-3 top-2 w-5 h-5 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              )}
             </div>
           </div>
 
