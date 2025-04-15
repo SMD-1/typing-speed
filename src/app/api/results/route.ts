@@ -23,7 +23,6 @@ export async function POST(req: Request) {
       !wpm ||
       !accuracy ||
       !correctChars ||
-      !incorrectChars ||
       !totalChars ||
       !duration ||
       !text

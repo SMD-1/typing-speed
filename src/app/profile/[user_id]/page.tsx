@@ -19,6 +19,7 @@ import {
 import { useRouter, useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { ProfileSkeleton } from "@/components/Skeleton";
 
 const Profiles = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -84,7 +85,7 @@ const Profiles = () => {
     return <div>Error: {typingTestsError.message}</div>;
   }
   if (!typingTestsResponse) {
-    return <div>No data found</div>;
+    return <ProfileSkeleton />;
   }
 
   return (
