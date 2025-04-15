@@ -29,6 +29,17 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 
+export interface UserResults {
+  accuracy: number;
+  created_at: string;
+  email: string;
+  rank: number;
+  image: string | null;
+  name: string;
+  user_id: string;
+  wpm: number;
+}
+
 async function fetchLeaderboard() {
   try {
     const response = await fetch("/api/results");
@@ -80,7 +91,7 @@ export default function LeaderboardPage() {
   };
 
   const leaderboardData =
-    data?.rows?.map((row: any, index: number) => {
+    data?.rows?.map((row: UserResults, index: number) => {
       row.rank = index + 1;
       return row;
     }) || [];
