@@ -81,6 +81,13 @@ const Header = () => {
                 Profile
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="dark:focus:bg-gray-600 focus:bg-gray-100"
+                onClick={() => router.push("/leaderboard")}
+              >
+                Leaderboard
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               {/* <DropdownMenuItem className="dark:focus:bg-gray-600 focus:bg-gray-100">
                 {session.user.name}
               </DropdownMenuItem>
@@ -90,10 +97,10 @@ const Header = () => {
                 onClick={async () => {
                   try {
                     await authClient.signOut();
-                  toast.success("Logged out successfully", {
-                    description: "See you again soon!",
-                    duration: 2000,
-                  });
+                    toast.success("Logged out successfully", {
+                      description: "See you again soon!",
+                      duration: 2000,
+                    });
                   } catch (error) {
                     console.error("Error signing out:", error);
                     toast.error("Error signing out", {
