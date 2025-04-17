@@ -8,17 +8,27 @@ import { TypingHistory, TypingStats } from "@/types";
 import { RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { WORDS } from "@/data/words";
 
-const SAMPLE_TEXT =
-  "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! The five boxing wizards jump quickly. Sphinx of black quartz, judge my vow.";
+function generateText(duration: number, averageWPM: number = 100): string {
+  const wordsNeeded = Math.ceil((duration / 60) * averageWPM);
+  const generatedWords: string[] = [];
+
+  for (let i = 0; i < wordsNeeded; i++) {
+    const randomIndex = Math.floor(Math.random() * WORDS.length);
+    generatedWords.push(WORDS[randomIndex]);
+  }
+
+  return generatedWords.join(" "); // Join words into a single string
+}
 
 export default function Home() {
   const [duration, setDuration] = useState(30);
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isActive, setIsActive] = useState(false);
   const [currentText, setCurrentText] = useState("");
-  const targetText = SAMPLE_TEXT;
-  // const [targetText, setTargetText] = useState(SAMPLE_TEXT);
+  // const targetText = SAMPLE_TEXT;
+  const [targetText, setTargetText] = useState("");
   const [stats, setStats] = useState<TypingStats>({
     wpm: 0,
     accuracy: 0,
@@ -30,6 +40,12 @@ export default function Home() {
   const [isFinished, setIsFinished] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [cursorBlink, setCursorBlink] = useState(true);
+
+  useEffect(() => {
+    // Generate text whenever the duration changes
+    const generatedText = generateText(duration);
+    setTargetText(generatedText);
+  }, [duration]);
 
   useEffect(() => {
     const handleGlobalClick = () => {
@@ -173,6 +189,8 @@ export default function Home() {
   }
 
   const handleStart = () => {
+    const generatedText = generateText(duration);
+    setTargetText(generatedText);
     setIsFinished(false);
     setTimeLeft(duration);
     setCurrentText("");
