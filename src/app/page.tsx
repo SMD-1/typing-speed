@@ -9,6 +9,7 @@ import { RefreshCcw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { WORDS } from "@/data/words";
+import socket from "@/lib/socket";
 
 function generateText(duration: number, averageWPM: number = 100): string {
   const wordsNeeded = Math.ceil((duration / 60) * averageWPM);
@@ -27,7 +28,6 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isActive, setIsActive] = useState(false);
   const [currentText, setCurrentText] = useState("");
-  // const targetText = SAMPLE_TEXT;
   const [targetText, setTargetText] = useState("");
   const [stats, setStats] = useState<TypingStats>({
     wpm: 0,
@@ -40,6 +40,20 @@ export default function Home() {
   const [isFinished, setIsFinished] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [cursorBlink, setCursorBlink] = useState(true);
+
+  useEffect(() => {
+    socket.connect();
+
+    socket.on("connect", () => {
+      console.log("✅ Connected to server, socket ID:", socket.id);
+    });
+    socket.on("welcome", (data) => {
+      console.log("👋", data);
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     // Generate text whenever the duration changes
