@@ -8,6 +8,7 @@ import { TypingHistory, TypingStats } from "@/types";
 import { toast } from "sonner";
 import { WORDS } from "@/data/words";
 import { authClient } from "@/lib/auth-client";
+import { useRoomContext } from "@/context/RoomContext";
 
 function generateText(duration: number, averageWPM: number = 100): string {
   const wordsNeeded = Math.ceil((duration / 60) * averageWPM);
@@ -21,7 +22,12 @@ function generateText(duration: number, averageWPM: number = 100): string {
   return generatedWords.join(" "); // Join words into a single string
 }
 
-const TypeField = () => {
+export interface TypeFieldProps {
+  isMultiPlayer?: boolean;
+  hasPassage?: boolean;
+}
+
+const TypeField: React.FC<TypeFieldProps> = ({ isMultiPlayer, hasPassage }) => {
   const [duration, setDuration] = useState(30);
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isActive, setIsActive] = useState(false);
@@ -38,11 +44,16 @@ const TypeField = () => {
   const [isFinished, setIsFinished] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [cursorBlink, setCursorBlink] = useState(true);
+  const { passage } = useRoomContext();
 
   useEffect(() => {
     // Generate text whenever the duration changes
-    const generatedText = generateText(duration);
-    setTargetText(generatedText);
+    if (isMultiPlayer && hasPassage) {
+      setTargetText(passage);
+    } else {
+      const generatedText = generateText(duration);
+      setTargetText(generatedText);
+    }
   }, [duration]);
 
   useEffect(() => {
