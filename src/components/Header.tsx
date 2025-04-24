@@ -88,6 +88,13 @@ const Header = () => {
                 Leaderboard
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="dark:focus:bg-gray-600 focus:bg-gray-100"
+                onClick={() => router.push("/multi-player")}
+              >
+                Multiplayer
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               {/* <DropdownMenuItem className="dark:focus:bg-gray-600 focus:bg-gray-100">
                 {session.user.name}
               </DropdownMenuItem>
