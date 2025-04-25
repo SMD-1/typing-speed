@@ -17,7 +17,6 @@ import socket from "@/lib/socket";
 import { KeyRound, UserPlus, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { useRoomContext } from "@/context/RoomContext";
 
 const Multiplayer = () => {
   const [username, setUsername] = useState("");
@@ -27,7 +26,6 @@ const Multiplayer = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { data: session } = authClient.useSession();
-  const { setPassage } = useRoomContext();
 
   useEffect(() => {
     // Connect the socket when the component mounts
@@ -56,8 +54,17 @@ const Multiplayer = () => {
       socket.emit("create-room", username);
 
       // Listen for room creation confirmation
-      socket.once("room-created", ({ roomId, passage }) => {
-        setPassage(passage);
+      socket.once("room-created", (roomData) => {
+        const roomId = roomData.id;
+        // Save data in localstorage
+        localStorage.setItem("username", username);
+        localStorage.setItem(
+          "roomData",
+          JSON.stringify({
+            roomId: roomId,
+            passage: roomData.passage,
+          })
+        );
         router.push(`/multi-player/${roomId}`);
       });
 
@@ -88,7 +95,16 @@ const Multiplayer = () => {
 
       // Listen for room join confirmation
       socket.once("room-joined", (roomData) => {
-        setPassage(roomData.passage);
+        // Save state in localStorage
+        localStorage.setItem(
+          "roomData",
+          JSON.stringify({
+            roomId: roomData.id,
+            passage: roomData.passage,
+          })
+        );
+        localStorage.setItem("username", username);
+
         router.push(`/multi-player/${roomId}`);
       });
 
