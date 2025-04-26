@@ -2,13 +2,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Timer from "./Timer";
 import { Button } from "./ui/button";
-import { RefreshCcw } from "lucide-react";
+import { Play, RefreshCcw } from "lucide-react";
 import Stats from "./Stats";
 import { TypingHistory, TypingStats } from "@/types";
 import { toast } from "sonner";
 import { WORDS } from "@/data/words";
 import { authClient } from "@/lib/auth-client";
-import { useRoomContext } from "@/context/RoomContext";
 
 function generateText(duration: number, averageWPM: number = 100): string {
   const wordsNeeded = Math.ceil((duration / 60) * averageWPM);
@@ -44,12 +43,13 @@ const TypeField: React.FC<TypeFieldProps> = ({ isMultiPlayer, hasPassage }) => {
   const [isFinished, setIsFinished] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [cursorBlink, setCursorBlink] = useState(true);
-  const { passage } = useRoomContext();
 
   useEffect(() => {
     // Generate text whenever the duration changes
     if (isMultiPlayer && hasPassage) {
-      setTargetText(passage);
+      const roomDataString = localStorage?.getItem("roomData");
+      const roomData = roomDataString ? JSON.parse(roomDataString) : null;
+      setTargetText(roomData?.passage || "");
     } else {
       const generatedText = generateText(duration);
       setTargetText(generatedText);
@@ -253,21 +253,34 @@ const TypeField: React.FC<TypeFieldProps> = ({ isMultiPlayer, hasPassage }) => {
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 dark:bg-gray-800">
-        <div className="flex justify-between items-center">
-          <Timer
-            timeLeft={timeLeft}
-            duration={duration}
-            onDurationChange={handleDurationChange}
-          />
-          <Button
-            onClick={handleStart}
-            className="flex items-center gap-2 bg-transparent"
-            variant="outline"
-          >
-            <RefreshCcw className="w-4 h-4" />
-            Restart
-          </Button>
-        </div>
+        {!isMultiPlayer ? (
+          <div className="flex justify-between items-center">
+            <Timer
+              timeLeft={timeLeft}
+              duration={duration}
+              onDurationChange={handleDurationChange}
+            />
+            <Button
+              onClick={handleStart}
+              className="flex items-center gap-2 bg-transparent"
+              variant="outline"
+            >
+              <RefreshCcw className="w-4 h-4" />
+              Restart
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center">
+            <Button
+              onClick={handleStart}
+              className="flex items-center gap-2 bg-transparent px-6 border border-red-500"
+              variant="outline"
+            >
+              <Play className="w-4 h-4" />
+              Start
+            </Button>
+          </div>
+        )}
 
         <div className="relative">
           <div
