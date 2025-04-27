@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
-import socket from "@/lib/socket";
+import { getSocket, initializeSocket } from "@/lib/socket";
 import { KeyRound, UserPlus, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -28,16 +28,12 @@ const Multiplayer = () => {
   const { data: session } = authClient.useSession();
 
   useEffect(() => {
+    // Initialize socket connection
+    initializeSocket();
     // Connect the socket when the component mounts
     if (session) {
       setUsername(session?.user.name ?? "");
     }
-    socket.connect();
-
-    // Cleanup: Disconnect the socket when the component unmounts
-    return () => {
-      socket.disconnect();
-    };
   }, [session]);
 
   const handleCreateRoom = async () => {
@@ -50,21 +46,16 @@ const Multiplayer = () => {
     setError(null);
 
     try {
+      const socket = getSocket();
+
       // Create a new room
       socket.emit("create-room", username);
 
       // Listen for room creation confirmation
-      socket.once("room-created", (roomData) => {
-        const roomId = roomData.id;
+      socket.once("room-created", ({ roomId, passage }) => {
+        console.log("Room created:", roomId);
         // Save data in localstorage
         localStorage.setItem("username", username);
-        localStorage.setItem(
-          "roomData",
-          JSON.stringify({
-            roomId: roomId,
-            passage: roomData.passage,
-          })
-        );
         router.push(`/multi-player/${roomId}`);
       });
 
@@ -90,29 +81,9 @@ const Multiplayer = () => {
     setError(null);
 
     try {
-      // Join the room
-      socket.emit("join-room", { roomId, username });
+      localStorage.setItem("username", username);
 
-      // Listen for room join confirmation
-      socket.once("room-joined", (roomData) => {
-        // Save state in localStorage
-        localStorage.setItem(
-          "roomData",
-          JSON.stringify({
-            roomId: roomData.id,
-            passage: roomData.passage,
-          })
-        );
-        localStorage.setItem("username", username);
-
-        router.push(`/multi-player/${roomId}`);
-      });
-
-      // Handle errors
-      socket.once("error", ({ message }) => {
-        setError(message);
-        setIsJoining(false);
-      });
+      router.push(`/multi-player/${roomId}`);
     } catch (err) {
       console.log("Error joining room:", err);
       setError("Failed to join room. Please try again.");
