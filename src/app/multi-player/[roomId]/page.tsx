@@ -52,8 +52,8 @@ const Room = () => {
 
   useEffect(() => {
     // Restore state from localStorage
-    const savedUsername = localStorage.getItem("username");
-    setUsername(savedUsername || "");
+    const savedUsername = localStorage.getItem("username") || "";
+    setUsername(savedUsername);
 
     const socket = getSocket();
 
@@ -64,7 +64,7 @@ const Room = () => {
     });
 
     // Listen for room data
-    socket.on("room-joined", (room) => {
+    socket.on("room-joined", ({ room }) => {
       console.log("Joined room:", room);
       setRoom(room);
       setIsLoading(false);
