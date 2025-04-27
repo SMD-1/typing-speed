@@ -1,10 +1,35 @@
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:8000"; // Replace with server URL
+let socket: Socket | null = null;
 
-// Initialize the socket instance
-const socket: Socket = io(SOCKET_URL, {
-  autoConnect: false, // Prevent auto-connection; connect manually when needed
-});
+export const initializeSocket = (): Socket => {
+  if (!socket) {
+    socket = io("http://localhost:8000", {
+      transports: ["websocket"],
+    });
 
-export default socket;
+    socket.on("connect", () => {
+      console.log("Connected to server with ID:", socket?.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+    });
+  }
+
+  return socket;
+};
+
+export const getSocket = (): Socket => {
+  if (!socket) {
+    return initializeSocket();
+  }
+  return socket;
+};
+
+export const disconnectSocket = (): void => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};
