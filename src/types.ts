@@ -36,3 +36,25 @@ export interface TypingTest {
   duration: number;
   createdAt: string;
 }
+
+export interface PlayerType {
+  socketId?: string;
+  userId: string;
+  username: string | null;
+  progress: number;
+  wpm: number;
+  accuracy: number;
+  completed: boolean;
+  position: number;
+  finishTime?: number;
+}
+
+export interface RoomType {
+  id: string;
+  hostId?: string;
+  players: PlayerType[];
+  passage: string;
+  started: boolean;
+  completed: boolean;
+  createdAt: number;
+}
