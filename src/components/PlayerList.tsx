@@ -7,25 +7,23 @@ import {
 } from "@/lib/util/typing";
 import { Trophy, User } from "lucide-react";
 import { Progress } from "./ui/progress";
-
-interface Player {
-  id: string;
-  username: string;
-  progress: number;
-  wpm: number;
-  accuracy: number;
-  completed: boolean;
-  position: number;
-}
+import { PlayerType } from "@/types";
 
 interface PlayerListProps {
-  readonly players: Player[];
+  readonly players: PlayerType[];
   readonly currentPlayerId: string;
 }
 
 export function PlayerList({ players, currentPlayerId }: PlayerListProps) {
+  const uniquePlayers = players.filter(
+    (player: PlayerType, index: number, self) =>
+      index ===
+      self.findIndex((p: PlayerType) => p.socketId === player.socketId)
+  );
   // Sort players by progress descending
-  const sortedPlayers = [...players]?.sort((a, b) => b.progress - a.progress);
+  const sortedPlayers = [...uniquePlayers]?.sort(
+    (a: PlayerType, b: PlayerType) => b.progress - a.progress
+  );
 
   return (
     <div className="rounded-lg border bg-card">
@@ -38,11 +36,11 @@ export function PlayerList({ players, currentPlayerId }: PlayerListProps) {
 
       <div className="divide-y">
         {sortedPlayers.map((player, index) => {
-          const isCurrentPlayer = player.id === currentPlayerId;
+          const isCurrentPlayer = player.socketId === currentPlayerId;
 
           return (
             <div
-              key={player.id}
+              key={player.socketId}
               className={`px-4 py-3 ${isCurrentPlayer ? "bg-muted/50" : ""}`}
             >
               <div className="flex items-center justify-between mb-1">
@@ -100,7 +98,7 @@ export function PlayerList({ players, currentPlayerId }: PlayerListProps) {
           );
         })}
 
-        {players.length === 0 && (
+        {sortedPlayers.length === 0 && (
           <div className="px-4 py-6 text-center text-muted-foreground">
             <User className="h-10 w-10 mx-auto mb-2 opacity-20" />
             <p>No players yet</p>

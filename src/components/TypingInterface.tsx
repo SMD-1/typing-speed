@@ -31,8 +31,6 @@ export function TypingInterface({
     onProgress,
   });
 
-  console.log("text", text);
-
   return (
     <div className="space-y-6">
       <Card className="border-2 border-border/50 shadow-md overflow-hidden">

@@ -20,20 +20,10 @@ import {
   getColorForWPM,
   getPositionSuffix,
 } from "@/lib/util/typing";
-
-interface Player {
-  id: string;
-  username: string;
-  progress: number;
-  wpm: number;
-  accuracy: number;
-  completed: boolean;
-  position: number;
-  finishTime?: number;
-}
+import { PlayerType } from "@/types";
 
 interface GameResultsProps {
-  readonly players: Player[];
+  readonly players: PlayerType[];
   readonly passage: string;
 }
 
@@ -46,7 +36,9 @@ export function GameResults({ players, passage }: GameResultsProps) {
   const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
 
   // Find current player
-  const currentPlayer = players.find((p) => p.id === currentPlayerId);
+  const currentPlayer = players.find(
+    (p: PlayerType) => p.socketId === currentPlayerId
+  );
 
   // Get top 3 players
   const topPlayers = sortedPlayers.slice(0, 3);
@@ -55,7 +47,7 @@ export function GameResults({ players, passage }: GameResultsProps) {
   const fastestTime = topPlayers[0]?.finishTime || 0;
 
   const handleNewGame = () => {
-    router.push("/typing-test");
+    router.push("/multi-player");
   };
 
   return (
@@ -69,7 +61,7 @@ export function GameResults({ players, passage }: GameResultsProps) {
 
       {/* Podium for top 3 players */}
       <div className="flex justify-center items-end h-64 mb-12">
-        {topPlayers.map((player, index) => {
+        {topPlayers.map((player: PlayerType, index: number) => {
           // Determine podium position
           const position = index + 1;
           const height =
@@ -83,7 +75,7 @@ export function GameResults({ players, passage }: GameResultsProps) {
 
           return (
             <div
-              key={player.id}
+              key={player.socketId}
               className={`flex flex-col items-center ${
                 position === 1
                   ? "order-2 mx-4"
@@ -103,7 +95,7 @@ export function GameResults({ players, passage }: GameResultsProps) {
                   </div>
                   <div
                     className={`w-24 h-24 rounded-full bg-muted flex items-center justify-center border-2 ${
-                      player.id === currentPlayerId
+                      player.socketId === currentPlayerId
                         ? "border-primary"
                         : "border-muted"
                     }`}
@@ -173,9 +165,9 @@ export function GameResults({ players, passage }: GameResultsProps) {
 
                   return (
                     <div
-                      key={player.id}
+                      key={player.socketId}
                       className={`py-3 flex items-center ${
-                        player.id === currentPlayerId
+                        player.socketId === currentPlayerId
                           ? "bg-muted/50 rounded"
                           : ""
                       }`}
@@ -186,7 +178,7 @@ export function GameResults({ players, passage }: GameResultsProps) {
                       <div className="flex-grow ml-2">
                         <div className="font-medium">
                           {player.username}
-                          {player.id === currentPlayerId && (
+                          {player.socketId === currentPlayerId && (
                             <span className="ml-1 text-xs text-muted-foreground">
                               (you)
                             </span>
@@ -232,9 +224,11 @@ export function GameResults({ players, passage }: GameResultsProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {sortedPlayers.map((player) => (
                   <Card
-                    key={player.id}
+                    key={player.socketId}
                     className={
-                      player.id === currentPlayerId ? "border-primary" : ""
+                      player.socketId === currentPlayerId
+                        ? "border-primary"
+                        : ""
                     }
                   >
                     <CardContent className="p-4">

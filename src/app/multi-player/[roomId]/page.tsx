@@ -1,15 +1,7 @@
 "use client";
-import Header from "@/components/Header";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  ChevronLeft,
-  Clock,
-  Flag,
-  Loader2,
-  Users,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Clock, Flag, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Clipboard } from "@/components/Clipboard";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -17,45 +9,31 @@ import { GameResults } from "@/components/GameResults";
 import { getSocket } from "@/lib/socket";
 import { PlayerList } from "@/components/PlayerList";
 import { TypingInterface } from "@/components/TypingInterface";
-
-interface Player {
-  id?: string;
-  username: string | null;
-  progress: number;
-  wpm: number;
-  accuracy: number;
-  completed: boolean;
-  position: number;
-  finishTime?: number;
-}
-
-interface Room {
-  id: string;
-  host?: string;
-  players: Player[];
-  passage: string;
-  started: boolean;
-  completed: boolean;
-}
+import { authClient } from "@/lib/auth-client";
+import { RoomType } from "@/types";
 
 const Room = () => {
+  const { data: session } = authClient.useSession();
+  const router = useRouter();
+
   const { roomId } = useParams() as { roomId: string };
   const [username, setUsername] = useState("");
-  const [room, setRoom] = useState<Room | null>(null);
+  const [room, setRoom] = useState<RoomType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [countdownActive, setCountdownActive] = useState(false);
-  const [isHost, setIsHost] = useState(false);
-  const router = useRouter();
+  const isHost = room && session && room.hostId === session?.user?.id;
 
+  const socketIdRef = useRef<string>("");
   useEffect(() => {
     // Restore state from localStorage
     const savedUsername = localStorage.getItem("username") || "";
     setUsername(savedUsername);
 
     const socket = getSocket();
+    socketIdRef.current = socket.id ?? "";
 
     // Join the room
     socket.emit("join-room", {
@@ -68,16 +46,16 @@ const Room = () => {
       console.log("Joined room:", room);
       setRoom(room);
       setIsLoading(false);
-      setIsHost(socket.id === room.host);
     });
 
     socket.on("room-created", ({ roomId, passage }) => {
-      setRoom({
+      const roomData: RoomType = {
         id: roomId,
-        host: socket.id,
+        hostId: session?.user.id ?? "",
         players: [
           {
-            id: socket.id,
+            socketId: socket.id,
+            userId: session?.user.id ?? "",
             username: savedUsername,
             progress: 0,
             wpm: 0,
@@ -89,9 +67,10 @@ const Room = () => {
         passage,
         started: false,
         completed: false,
-      });
+        createdAt: Date.now(),
+      };
+      setRoom(roomData);
       setIsLoading(false);
-      setIsHost(true);
     });
 
     // When a new player joins
@@ -107,7 +86,6 @@ const Room = () => {
     // When host changes
     socket.on("new-host", ({ hostId }) => {
       setRoom((prev) => (prev ? { ...prev, host: hostId } : null));
-      setIsHost(socket.id === hostId);
     });
 
     // Game started
@@ -138,6 +116,7 @@ const Room = () => {
 
     // Cleanup: Disconnect the socket when the component unmounts
     return () => {
+      socket.emit("leave-room", { roomId });
       socket.off("room-joined");
       socket.off("room-created");
       socket.off("player-joined");
@@ -149,8 +128,6 @@ const Room = () => {
       socket.off("error");
     };
   }, [roomId]);
-
-  console.log("Room:", room);
 
   // Handle start game
   const handleStartGame = () => {
@@ -167,18 +144,13 @@ const Room = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 dark:bg-gray-900">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <Header />
-          <div className="flex items-center justify-between w-full pr-4">
-            <div className="flex items-center gap-2 rounded-lg py-2 px-4 text-gray-500">
-              {error}
-            </div>
-            <Button variant="outline" onClick={handleLeaveRoom}>
-              <ChevronLeft className="h-4 w-4" />
-              Back to lobby
-            </Button>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <p className="text-destructive text-lg mb-4">{error}</p>
+          <Button onClick={handleLeaveRoom}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Lobby
+          </Button>
         </div>
       </div>
     );
@@ -253,7 +225,7 @@ const Room = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <TypingInterface
-                text={room.passage} // fallback to empty string if no passage
+                text={room.passage}
                 gameStarted={gameStarted}
                 onProgress={handleProgressUpdate}
               />
@@ -292,11 +264,11 @@ const Room = () => {
               )}
             </div>
 
-            {room?.players?.length > 0 && (
+            {room?.players?.length > 0 && socketIdRef.current && (
               <div className="lg:col-span-1">
                 <PlayerList
                   players={room.players}
-                  currentPlayerId={getSocket().id}
+                  currentPlayerId={socketIdRef.current}
                 />
               </div>
             )}

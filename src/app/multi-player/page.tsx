@@ -49,13 +49,16 @@ const Multiplayer = () => {
       const socket = getSocket();
 
       // Create a new room
-      socket.emit("create-room", username);
+      socket.emit("create-room", {
+        username: username,
+        userId: session?.user.id,
+      });
 
       // Listen for room creation confirmation
       socket.once("room-created", ({ roomId, passage }) => {
-        console.log("Room created:", roomId);
         // Save data in localstorage
         localStorage.setItem("username", username);
+        localStorage.setItem("userId", session?.user.id ?? "");
         router.push(`/multi-player/${roomId}`);
       });
 
