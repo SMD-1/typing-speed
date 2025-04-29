@@ -38,7 +38,8 @@ const Room = () => {
     // Join the room
     socket.emit("join-room", {
       roomId,
-      username: savedUsername,
+      username: username,
+      userId: session?.user.id,
     });
 
     // Listen for room data
@@ -134,7 +135,10 @@ const Room = () => {
     if (!isHost || !room) return;
 
     const socket = getSocket();
-    socket.emit("start-game", roomId);
+    socket.emit("start-game", {
+      roomId,
+      userId: session?.user.id,
+    });
   };
 
   // Handle leave room
@@ -191,8 +195,6 @@ const Room = () => {
     socket.emit("update-progress", { roomId, progress, wpm, accuracy });
   };
 
-  console.log("yoooooooooooooo", room?.players);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/90 flex flex-col">
       <div className="container max-w-7xl mx-auto px-4 py-8">
@@ -202,10 +204,12 @@ const Room = () => {
             Back to Lobby
           </Button>
 
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center border border-muted rounded-full px-2 py-1">
+              <span className="inline-block h-2 w-2 mr-2 rounded-full bg-green-500"></span>
+
               <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="text-sm">{room?.players?.length} players</span>
+              <span className="text-sm">{room?.players?.length} Players</span>
             </div>
 
             <div className="flex items-center">

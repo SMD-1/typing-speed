@@ -52,6 +52,7 @@ const Header = () => {
         {/* 4) if session is not null then show profile image in Profile */}
         {session && (
           <DropdownMenu>
+            {session?.user?.name}
             <DropdownMenuTrigger className="w-10 h-10 cursor-pointer rounded-full">
               {session?.user?.image ? (
                 <Avatar>

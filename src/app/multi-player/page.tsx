@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { getSocket, initializeSocket } from "@/lib/socket";
-import { KeyRound, UserPlus, UsersRound } from "lucide-react";
+import { ChevronLeft, KeyRound, UserPlus, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -96,11 +96,16 @@ const Multiplayer = () => {
 
   return (
     <div className="p-4 dark:bg-gray-900 h-screen ">
-      <Button onClick={() => router.push("/")}>Home</Button>
       <div className=" max-w-5xl mx-auto space-y-8">
         <Header />
         <div className="flex flex-col items-center mt-8">
           <Card className="border-2 border-border/50 max-w-2xl shadow-lg dark:bg-gray-800">
+            <button
+              className="flex items-center gap-2 w-fit text-sm font-medium text-gray-700 dark:text-gray-300 mb border border-gray-300 dark:border-gray-600 p-2 ml-6 rounded-md cursor-pointer"
+              onClick={() => router.push("/")}
+            >
+              <ChevronLeft className="w-4 h-4" /> Home
+            </button>
             <CardHeader>
               <CardTitle className="text-2xl text-center">
                 Join a Typing Race

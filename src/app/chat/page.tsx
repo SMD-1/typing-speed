@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import socket from "@/lib/socket";
+import { getSocket } from "@/lib/socket";
 
 export default function ChatPage() {
   const [message, setMessage] = useState<string>("");
@@ -12,7 +12,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     // Connect the socket when the component mounts
-    socket.connect();
+    const socket = getSocket();
 
     // Cleanup: Disconnect the socket when the component unmounts
     return () => {
@@ -22,6 +22,7 @@ export default function ChatPage() {
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
+    const socket = getSocket();
     console.log(message);
     socket.emit("message", message);
     setMessage("");
