@@ -15,22 +15,21 @@ import { RoomType } from "@/types";
 const Room = () => {
   const { data: session } = authClient.useSession();
   const router = useRouter();
-
   const { roomId } = useParams() as { roomId: string };
-  const [username, setUsername] = useState("");
+
   const [room, setRoom] = useState<RoomType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [countdownActive, setCountdownActive] = useState(false);
-  const isHost = room && session && room.hostId === session?.user?.id;
+
+  let isHost = room && session && room.hostId === session?.user?.id;
 
   const socketIdRef = useRef<string>("");
   useEffect(() => {
     // Restore state from localStorage
     const savedUsername = localStorage.getItem("username") || "";
-    setUsername(savedUsername);
 
     const socket = getSocket();
     socketIdRef.current = socket.id ?? "";
@@ -38,13 +37,12 @@ const Room = () => {
     // Join the room
     socket.emit("join-room", {
       roomId,
-      username: username,
+      username: savedUsername,
       userId: session?.user.id,
     });
 
     // Listen for room data
     socket.on("room-joined", ({ room }) => {
-      console.log("Joined room:", room);
       setRoom(room);
       setIsLoading(false);
     });
@@ -86,7 +84,7 @@ const Room = () => {
 
     // When host changes
     socket.on("new-host", ({ hostId }) => {
-      setRoom((prev) => (prev ? { ...prev, host: hostId } : null));
+      setRoom((prev) => (prev ? { ...prev, hostId: hostId } : null));
     });
 
     // Game started
@@ -141,8 +139,21 @@ const Room = () => {
     });
   };
 
+  const handleProgressUpdate = (
+    progress: number,
+    wpm: number,
+    accuracy: number
+  ) => {
+    if (!room || !gameStarted) return;
+
+    const socket = getSocket();
+    socket.emit("update-progress", { roomId, progress, wpm, accuracy });
+  };
+
   // Handle leave room
   const handleLeaveRoom = () => {
+    const socket = getSocket();
+    socket?.emit("leave-room", { roomId });
     router.push("/multi-player");
   };
 
@@ -184,16 +195,6 @@ const Room = () => {
       </div>
     );
   }
-  const handleProgressUpdate = (
-    progress: number,
-    wpm: number,
-    accuracy: number
-  ) => {
-    if (!room || !gameStarted) return;
-
-    const socket = getSocket();
-    socket.emit("update-progress", { roomId, progress, wpm, accuracy });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/90 flex flex-col">

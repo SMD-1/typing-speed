@@ -4,7 +4,7 @@ import { formatCountdown } from "@/lib/util/typing";
 import { useState, useEffect } from "react";
 
 interface CountdownTimerProps {
-  duration: number;
+  readonly duration: number;
 }
 
 export function CountdownTimer({ duration }: CountdownTimerProps) {
