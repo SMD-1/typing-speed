@@ -71,6 +71,7 @@ export function useTypingGame({
   }, [
     stats.startTime,
     stats.correctKeystrokes,
+    stats.progress,
     stats.keystrokes,
     stats.currentIndex,
     text?.length,
@@ -139,6 +140,7 @@ export function useTypingGame({
           setStats((prev) => ({
             ...prev,
             endTime: Date.now(),
+            progress: 100,
             complete: true,
           }));
 

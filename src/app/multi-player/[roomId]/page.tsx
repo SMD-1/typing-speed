@@ -115,7 +115,6 @@ const Room = () => {
 
     // Cleanup: Disconnect the socket when the component unmounts
     return () => {
-      socket.emit("leave-room", { roomId });
       socket.off("room-joined");
       socket.off("room-created");
       socket.off("player-joined");
@@ -232,7 +231,9 @@ const Room = () => {
               <TypingInterface
                 text={room.passage}
                 gameStarted={gameStarted}
-                onProgress={handleProgressUpdate}
+                onProgress={(progress, wpm, accuracy) => {
+                  handleProgressUpdate(progress, wpm, accuracy);
+                }}
               />
 
               {!gameStarted && isHost && (
