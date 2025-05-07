@@ -55,7 +55,7 @@ const Multiplayer = () => {
       });
 
       // Listen for room creation confirmation
-      socket.once("room-created", ({ roomId, passage }) => {
+      socket.once("room-created", ({ roomId }) => {
         // Save data in localstorage
         localStorage.setItem("username", username);
         localStorage.setItem("userId", session?.user.id ?? "");

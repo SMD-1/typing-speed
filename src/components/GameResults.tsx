@@ -36,9 +36,9 @@ export function GameResults({ players, passage }: GameResultsProps) {
   const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
 
   // Find current player
-  const currentPlayer = players.find(
-    (p: PlayerType) => p.socketId === currentPlayerId
-  );
+  // const currentPlayer = players.find(
+  //   (p: PlayerType) => p.socketId === currentPlayerId
+  // );
 
   // Get top 3 players
   const topPlayers = sortedPlayers.slice(0, 3);

@@ -54,7 +54,7 @@ const TypeField: React.FC<TypeFieldProps> = ({ isMultiPlayer, hasPassage }) => {
       const generatedText = generateText(duration);
       setTargetText(generatedText);
     }
-  }, [duration]);
+  }, [duration, hasPassage, isMultiPlayer]);
 
   useEffect(() => {
     const handleGlobalClick = () => {

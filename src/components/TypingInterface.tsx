@@ -25,7 +25,7 @@ export function TypingInterface({
   gameStarted,
   onProgress,
 }: TypingInterfaceProps) {
-  const { userInput, stats, handleTyping, resetGame } = useTypingGame({
+  const { userInput, stats, handleTyping } = useTypingGame({
     text,
     gameStarted,
     onProgress,

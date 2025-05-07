@@ -24,7 +24,7 @@ const Room = () => {
   const [gameCompleted, setGameCompleted] = useState(false);
   const [countdownActive, setCountdownActive] = useState(false);
 
-  let isHost = room && session && room.hostId === session?.user?.id;
+  const isHost = room && session && room.hostId === session?.user?.id;
 
   const socketIdRef = useRef<string>("");
   useEffect(() => {
@@ -125,7 +125,7 @@ const Room = () => {
       socket.off("game-completed");
       socket.off("error");
     };
-  }, [roomId]);
+  }, [roomId, session?.user.id]);
 
   // Handle start game
   const handleStartGame = () => {

@@ -71,7 +71,6 @@ export function useTypingGame({
   }, [
     stats.startTime,
     stats.correctKeystrokes,
-    stats.progress,
     stats.keystrokes,
     stats.currentIndex,
     text?.length,
