@@ -41,44 +41,13 @@ export function useTypingGame({
   const [currentCharacter, setCurrentCharacter] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const calculateStats = useCallback(() => {
-    if (!stats.startTime) return;
-
-    const elapsedTimeInMinutes = (Date.now() - stats.startTime) / 60000;
-    const textLength = text.length;
-
-    // Calculate WPM (standard word length is 5 characters)
-    const wordCount = stats.correctKeystrokes / 5;
-    const wpm = Math.round(wordCount / elapsedTimeInMinutes);
-
-    // Calculate accuracy
-    const accuracy =
-      stats.keystrokes > 0
-        ? Math.round((stats.correctKeystrokes / stats.keystrokes) * 100)
-        : 100;
-
-    // Calculate progress
-    const progress = Math.round((stats.currentIndex / textLength) * 100);
-
-    setStats((prev) => ({
-      ...prev,
-      wpm: isNaN(wpm) ? 0 : wpm,
-      accuracy,
-      progress,
-    }));
-
-    onProgress(progress, isNaN(wpm) ? 0 : wpm, accuracy);
-  }, [
-    stats.startTime,
-    stats.correctKeystrokes,
-    stats.keystrokes,
-    stats.currentIndex,
-    text?.length,
-    onProgress,
-  ]);
-
   // Reset the game
   const resetGame = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     setUserInput("");
     setStats({
       startTime: null,
@@ -101,58 +70,112 @@ export function useTypingGame({
       if (!gameStarted || stats.complete) return;
 
       const inputVal = e.target.value;
+      const newCharIndex = inputVal.length;
+      const currentChar = text[newCharIndex - 1];
+      const typedChar = inputVal[newCharIndex - 1];
+      const isNewChar = newCharIndex > userInput.length;
+      const isCorrect = typedChar === currentChar;
+
       setUserInput(inputVal);
 
-      // Record start time on first keystroke
-      if (!stats.startTime && inputVal.length > 0) {
-        setStats((prev) => ({ ...prev, startTime: Date.now() }));
+      setStats((prev) => {
+        const now = Date.now();
+        const startTime = prev.startTime ?? (inputVal.length > 0 ? now : null);
+        const keystrokes = prev.keystrokes + (isNewChar ? 1 : 0);
+        const correctKeystrokes =
+          prev.correctKeystrokes + (isNewChar && isCorrect ? 1 : 0);
+        const errors = prev.errors + (isNewChar && !isCorrect ? 1 : 0);
+        const currentIndex = prev.currentIndex + (isNewChar ? 1 : 0);
 
-        // Start the interval for continuous stats calculation
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(calculateStats, 500);
+        const elapsedTimeInMinutes = startTime ? (now - startTime) / 60000 : 0;
+        const wordCount = correctKeystrokes / 5;
+        const wpm =
+          elapsedTimeInMinutes > 0
+            ? Math.round(wordCount / elapsedTimeInMinutes)
+            : 0;
+        const accuracy =
+          keystrokes > 0
+            ? Math.round((correctKeystrokes / keystrokes) * 100)
+            : 100;
+        const progress = Math.min(
+          Math.round((currentIndex / text.length) * 100),
+          100
+        );
+        const complete = currentIndex >= text.length;
+
+        // Fire onProgress callback here
+        onProgress(progress, wpm, accuracy);
+
+        return {
+          ...prev,
+          startTime,
+          keystrokes,
+          correctKeystrokes,
+          errors,
+          currentIndex,
+          wpm,
+          accuracy,
+          progress,
+          complete,
+          endTime: complete ? now : null,
+        };
+      });
+
+      // Set next character
+      if (newCharIndex < text.length) {
+        setCurrentCharacter(text[newCharIndex]);
       }
 
-      const currentChar = text[stats.currentIndex];
-      const typedChar = inputVal[inputVal.length - 1];
+      // Start interval on first keystroke
+      if (!stats.startTime && inputVal.length > 0 && !intervalRef.current) {
+        intervalRef.current = setInterval(() => {
+          setStats((prev) => {
+            if (!prev.startTime || prev.complete) return prev;
 
-      // Only process if the user has typed a new character
-      if (inputVal.length > userInput.length) {
-        const isCorrect = typedChar === currentChar;
+            const now = Date.now();
+            const elapsedTimeInMinutes = (now - prev.startTime) / 60000;
+            const wordCount = prev.correctKeystrokes / 5;
+            const wpm =
+              elapsedTimeInMinutes > 0
+                ? Math.round(wordCount / elapsedTimeInMinutes)
+                : 0;
+            const accuracy =
+              prev.keystrokes > 0
+                ? Math.round((prev.correctKeystrokes / prev.keystrokes) * 100)
+                : 100;
+            const progress = Math.min(
+              Math.round((prev.currentIndex / text.length) * 100),
+              100
+            );
 
-        setStats((prev) => ({
-          ...prev,
-          keystrokes: prev.keystrokes + 1,
-          correctKeystrokes: isCorrect
-            ? prev.correctKeystrokes + 1
-            : prev.correctKeystrokes,
-          errors: isCorrect ? prev.errors : prev.errors + 1,
-          currentIndex: prev.currentIndex + 1,
-        }));
+            // Fire onProgress callback periodically
+            onProgress(progress, wpm, accuracy);
 
-        // Set the next character to type
-        if (stats.currentIndex + 1 < text.length) {
-          setCurrentCharacter(text[stats.currentIndex + 1]);
-        }
+            return {
+              ...prev,
+              wpm,
+              accuracy,
+              progress,
+            };
+          });
+        }, 500);
+      }
 
-        // Check if typing is complete
-        if (stats.currentIndex + 1 >= text.length) {
-          setStats((prev) => ({
-            ...prev,
-            endTime: Date.now(),
-            progress: 100,
-            complete: true,
-          }));
-
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-
-          calculateStats();
-        }
+      // Clear interval on completion
+      if (stats.currentIndex + 1 >= text.length && intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     },
-    [userInput, text, stats, gameStarted, calculateStats]
+    [
+      userInput,
+      text,
+      gameStarted,
+      stats.complete,
+      stats.startTime,
+      stats.currentIndex,
+      onProgress,
+    ]
   );
 
   // Cleanup interval on unmount
