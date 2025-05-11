@@ -39,6 +39,7 @@ const Room = () => {
       roomId,
       username: savedUsername,
       userId: session?.user.id,
+      image: session?.user.image ?? "",
     });
 
     // Listen for room data
@@ -55,6 +56,7 @@ const Room = () => {
           {
             socketId: socket.id,
             userId: session?.user.id ?? "",
+            image: session?.user.image ?? "",
             username: savedUsername,
             progress: 0,
             wpm: 0,

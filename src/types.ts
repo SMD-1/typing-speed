@@ -41,6 +41,7 @@ export interface PlayerType {
   socketId?: string;
   userId: string;
   username: string | null;
+  image: string | null;
   progress: number;
   wpm: number;
   accuracy: number;

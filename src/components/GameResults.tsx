@@ -21,6 +21,7 @@ import {
   getPositionSuffix,
 } from "@/lib/util/typing";
 import { PlayerType } from "@/types";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface GameResultsProps {
   readonly players: PlayerType[];
@@ -100,7 +101,12 @@ export function GameResults({ players, passage }: GameResultsProps) {
                         : "border-muted"
                     }`}
                   >
-                    <span className="text-lg font-bold">{player.username}</span>
+                    <Avatar>
+                      <AvatarImage src={player.image || ""} />
+                      <AvatarFallback>
+                        {player?.username?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                 </div>
                 <div className="text-center mt-2">
