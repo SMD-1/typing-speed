@@ -8,7 +8,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <Header />
-        <TypeField isMultiPlayer={false} hasPassage={false} />
+        <TypeField />
       </div>
     </div>
   );
