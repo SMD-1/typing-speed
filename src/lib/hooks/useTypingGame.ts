@@ -74,6 +74,7 @@ export function useTypingGame({
       const currentChar = text[newCharIndex - 1];
       const typedChar = inputVal[newCharIndex - 1];
       const isNewChar = newCharIndex > userInput.length;
+      const isDeleting = newCharIndex < userInput.length;
       const isCorrect = typedChar === currentChar;
 
       setUserInput(inputVal);
@@ -83,9 +84,15 @@ export function useTypingGame({
         const startTime = prev.startTime ?? (inputVal.length > 0 ? now : null);
         const keystrokes = prev.keystrokes + (isNewChar ? 1 : 0);
         const correctKeystrokes =
-          prev.correctKeystrokes + (isNewChar && isCorrect ? 1 : 0);
-        const errors = prev.errors + (isNewChar && !isCorrect ? 1 : 0);
-        const currentIndex = prev.currentIndex + (isNewChar ? 1 : 0);
+          prev.correctKeystrokes +
+          (isNewChar && isCorrect ? 1 : 0) -
+          (isDeleting && prev.correctKeystrokes > 0 ? 1 : 0);
+        const errors =
+          prev.errors +
+          (isNewChar && !isCorrect ? 1 : 0) -
+          (isDeleting && prev.errors > 0 ? 1 : 0);
+        const currentIndex =
+          prev.currentIndex + (isNewChar ? 1 : 0) - (isDeleting ? 1 : 0);
 
         const elapsedTimeInMinutes = startTime ? (now - startTime) / 60000 : 0;
         const wordCount = correctKeystrokes / 5;
