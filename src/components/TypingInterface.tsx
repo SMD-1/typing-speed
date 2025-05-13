@@ -4,11 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Activity, CheckCircle2, Timer, Percent } from "lucide-react";
 import { useTypingGame } from "@/lib/hooks/useTypingGame";
-import {
-  getColorForAccuracy,
-  getColorForWPM,
-  highlightText,
-} from "@/lib/util/typing";
+import { getColorForAccuracy, getColorForWPM } from "@/lib/util/typing";
 
 interface TypingInterfaceProps {
   readonly text: string;
@@ -30,6 +26,27 @@ export function TypingInterface({
     gameStarted,
     onProgress,
   });
+
+  const renderText = () => {
+    return text.split("").map((char, index) => {
+      let className = "";
+
+      if (index < userInput.length) {
+        className =
+          userInput[index] === char
+            ? "text-green-500 dark:text-green-400"
+            : "text-red-500 dark:text-red-400";
+      } else if (index === userInput.length) {
+        className = "bg-primary/20 text-primary animate-pulse";
+      }
+
+      return (
+        <span key={index} className={className}>
+          {char}
+        </span>
+      );
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -71,11 +88,7 @@ export function TypingInterface({
 
         <CardContent className="p-6">
           <div className="rounded-lg bg-card p-4 mb-6 text-lg leading-relaxed min-h-24 font-mono border">
-            {gameStarted ? (
-              highlightText(text, stats.currentIndex)
-            ) : (
-              <span className="text-muted-foreground">{text}</span>
-            )}
+            {renderText()}
           </div>
 
           <div className="relative">
